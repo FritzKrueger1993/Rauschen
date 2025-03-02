@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="rnbo-version" content="1.0.0-alpha.5">
+    <link rel="stylesheet" href="style/style.css">
+    <title>Meeresrauschen Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+        }
+
+        h1.custom-title {
+            font-size: 2.5rem;
+            color: #1e3d58;
+            margin-top: 30px;
+        }
+
+        #rnbo-parameter-sliders {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .slider-container {
+            margin: 10px 0;
+        }
+
+        input[type="range"] {
+            width: 60%;
+            max-width: 300px;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]:focus {
+            background: #aaa;
+        }
+
+        em {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .slider-value {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- RNBO generiertes h1, das wir verstecken werden -->
+    <h1 id="patcher-title">Meeresrauschen Generator</h1>
+
+    <!-- Deine benutzerdefinierte Überschrift -->
+    <h1 class="custom-title">Meeresrauschen Generator</h1>
+
+    <div id="rnbo-parameter-sliders">
+        <h2>Parameters</h2>
+        <em id="no-param-label">No parameters</em> <!-- Wird später überschrieben -->
+    </div>
+    
+    <!-- RNBO Skript laden -->
+    <script type="text/javascript" src="js/guardrails.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script>
+        window.onload = function() {
+            // 1. Blende das ursprüngliche RNBO "h1" aus
+            const patchTitle = document.getElementById('patcher-title');  // Die von RNBO generierte Überschrift
+            if (patchTitle) {
+                patchTitle.style.display = 'none'; // Blendet den Patchtitel aus
+            }
+
+            // 2. Erstelle einen Timer, der regelmäßig überprüft, ob Parameter hinzugefügt wurden
+            const paramLabel = document.getElementById('no-param-label');
+            const slidersContainer = document.getElementById('rnbo-parameter-sliders');
+
+            // Überprüfe alle 500ms, ob echte Parameter hinzugefügt wurden
+            const interval = setInterval(function() {
+                // Überprüfe, ob der Container tatsächliche Parameter enthält (d.h., mehr als der "No parameters"-Text)
+                const sliders = slidersContainer.querySelectorAll('input[type="range"]'); // Suche nach Slider-Elementen
+                if (sliders.length > 0) {
+                    // Blende "No parameters" aus, wenn Parameter hinzugefügt wurden
+                    paramLabel.style.display = 'none';
+                    
+                    // Setze Initialwerte für die Slider (hier wird davon ausgegangen, dass die IDs im RNBO-Patch vorhanden sind)
+                    const waveSpeedSlider = slidersContainer.querySelector('#waveSpeed');
+                    const stereoWidthSlider = slidersContainer.querySelector('#stereoWidth');
+                    const speedRandomeAmountSlider = slidersContainer.querySelector('#speedRandomeAmount');
+
+                    if (waveSpeedSlider) {
+                        waveSpeedSlider.value = 0.1;
+                        // Aktualisiere den Wert des "output"-Elements (wenn vorhanden)
+                        const waveSpeedOutput = slidersContainer.querySelector('#waveSpeed-output');
+                        if (waveSpeedOutput) waveSpeedOutput.textContent = waveSpeedSlider.value;
+                    }
+                    if (stereoWidthSlider) {
+                        stereoWidthSlider.value = 0.3;
+                        // Aktualisiere den Wert des "output"-Elements (wenn vorhanden)
+                        const stereoWidthOutput = slidersContainer.querySelector('#stereoWidth-output');
+                        if (stereoWidthOutput) stereoWidthOutput.textContent = stereoWidthSlider.value;
+                    }
+                    if (speedRandomeAmountSlider) {
+                        speedRandomeAmountSlider.value = 0.8;
+                        // Aktualisiere den Wert des "output"-Elements (wenn vorhanden)
+                        const speedRandomeAmountOutput = slidersContainer.querySelector('#speedRandomeAmount-output');
+                        if (speedRandomeAmountOutput) speedRandomeAmountOutput.textContent = speedRandomeAmountSlider.value;
+                    }
+
+                    // Event Listener hinzufügen, um die Zahlen beim Schieben des Sliders zu aktualisieren
+                    waveSpeedSlider.addEventListener('input', function() {
+                        waveSpeedOutput.textContent = waveSpeedSlider.value;
+                    });
+
+                    stereoWidthSlider.addEventListener('input', function() {
+                        stereoWidthOutput.textContent = stereoWidthSlider.value;
+                    });
+
+                    speedRandomeAmountSlider.addEventListener('input', function() {
+                        speedRandomeAmountOutput.textContent = speedRandomeAmountSlider.value;
+                    });
+
+                    clearInterval(interval); // Stoppe den Timer
+                }
+            }, 500);  // Alle 500ms prüfen
+        };
+    </script>
+</body>
+</html>
