@@ -55,6 +55,21 @@
             font-size: 1.2rem;
             margin-top: 10px;
         }
+
+        #start-audio-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: white;
+            background-color: #1e3d58;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #start-audio-btn:hover {
+            background-color: #163047;
+        }
     </style>
 </head>
 <body>
@@ -63,6 +78,9 @@
 
     <!-- Deine benutzerdefinierte Überschrift -->
     <h1 class="custom-title">Meeresrauschen Generator</h1>
+
+    <!-- Start-Button für Audio -->
+    <button id="start-audio-btn">Start Audio</button>
 
     <div id="rnbo-parameter-sliders">
         <h2>Parameters</h2>
@@ -73,50 +91,60 @@
     <script type="text/javascript" src="js/guardrails.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
     <script>
+        let audioContext;
+
+        document.getElementById("start-audio-btn").addEventListener("click", function() {
+            if (!audioContext) {
+                // Erstelle den AudioContext beim ersten Klick
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (audioContext.state === "suspended") {
+                    audioContext.resume(); // Falls nötig, den Kontext aktivieren
+                }
+
+                console.log("Audio gestartet!");
+
+                // Verstecke den Button nach der Aktivierung
+                this.style.display = "none";
+            }
+        });
+
         window.onload = function() {
             // 1. Blende das ursprüngliche RNBO "h1" aus
-            const patchTitle = document.getElementById('patcher-title');  // Die von RNBO generierte Überschrift
+            const patchTitle = document.getElementById('patcher-title');  
             if (patchTitle) {
-                patchTitle.style.display = 'none'; // Blendet den Patchtitel aus
+                patchTitle.style.display = 'none'; 
             }
 
-            // 2. Erstelle einen Timer, der regelmäßig überprüft, ob Parameter hinzugefügt wurden
+            // 2. Warte auf RNBO Parameter und setze Initialwerte
             const paramLabel = document.getElementById('no-param-label');
             const slidersContainer = document.getElementById('rnbo-parameter-sliders');
 
-            // Überprüfe alle 500ms, ob echte Parameter hinzugefügt wurden
             const interval = setInterval(function() {
-                // Überprüfe, ob der Container tatsächliche Parameter enthält (d.h., mehr als der "No parameters"-Text)
-                const sliders = slidersContainer.querySelectorAll('input[type="range"]'); // Suche nach Slider-Elementen
+                const sliders = slidersContainer.querySelectorAll('input[type="range"]'); 
                 if (sliders.length > 0) {
-                    // Blende "No parameters" aus, wenn Parameter hinzugefügt wurden
                     paramLabel.style.display = 'none';
-                    
-                    // Setze Initialwerte für die Slider (hier wird davon ausgegangen, dass die IDs im RNBO-Patch vorhanden sind)
+
                     const waveSpeedSlider = slidersContainer.querySelector('#waveSpeed');
                     const stereoWidthSlider = slidersContainer.querySelector('#stereoWidth');
                     const speedRandomeAmountSlider = slidersContainer.querySelector('#speedRandomeAmount');
 
                     if (waveSpeedSlider) {
                         waveSpeedSlider.value = 0.1;
-                        // Aktualisiere den Wert des "output"-Elements (wenn vorhanden)
                         const waveSpeedOutput = slidersContainer.querySelector('#waveSpeed-output');
                         if (waveSpeedOutput) waveSpeedOutput.textContent = waveSpeedSlider.value;
                     }
                     if (stereoWidthSlider) {
                         stereoWidthSlider.value = 0.3;
-                        // Aktualisiere den Wert des "output"-Elements (wenn vorhanden)
                         const stereoWidthOutput = slidersContainer.querySelector('#stereoWidth-output');
                         if (stereoWidthOutput) stereoWidthOutput.textContent = stereoWidthSlider.value;
                     }
                     if (speedRandomeAmountSlider) {
                         speedRandomeAmountSlider.value = 0.8;
-                        // Aktualisiere den Wert des "output"-Elements (wenn vorhanden)
                         const speedRandomeAmountOutput = slidersContainer.querySelector('#speedRandomeAmount-output');
                         if (speedRandomeAmountOutput) speedRandomeAmountOutput.textContent = speedRandomeAmountSlider.value;
                     }
 
-                    // Event Listener hinzufügen, um die Zahlen beim Schieben des Sliders zu aktualisieren
                     waveSpeedSlider.addEventListener('input', function() {
                         waveSpeedOutput.textContent = waveSpeedSlider.value;
                     });
@@ -129,9 +157,9 @@
                         speedRandomeAmountOutput.textContent = speedRandomeAmountSlider.value;
                     });
 
-                    clearInterval(interval); // Stoppe den Timer
+                    clearInterval(interval);
                 }
-            }, 500);  // Alle 500ms prüfen
+            }, 500);
         };
     </script>
 </body>
