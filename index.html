@@ -94,20 +94,20 @@
         let audioContext;
 
         document.getElementById("start-audio-btn").addEventListener("click", function() {
-            if (!audioContext) {
-                // Erstelle den AudioContext beim ersten Klick
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                if (audioContext.state === "suspended") {
-                    audioContext.resume(); // Falls nötig, den Kontext aktivieren
-                }
-
-                console.log("Audio gestartet!");
-
-                // Verstecke den Button nach der Aktivierung
-                this.style.display = "none";
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Warten, um sicherzustellen, dass es wirklich aktiviert wird
+        setTimeout(() => {
+            if (audioContext.state === "suspended") {
+                audioContext.resume().then(() => console.log("AudioContext resumed!"));
             }
-        });
+        }, 100);
+        
+        console.log("Audio gestartet!");
+        this.style.display = "none";
+    }
+});
 
         window.onload = function() {
             // 1. Blende das ursprüngliche RNBO "h1" aus
